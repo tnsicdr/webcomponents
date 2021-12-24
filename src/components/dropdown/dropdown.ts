@@ -5,6 +5,7 @@ export interface IDropdownProps {
   label: string;
 }
 
+@customElement('wc-dropdown')
 export class Dropdown extends LitElement implements IDropdownProps {
   static styles = css`
     .dropdown-children[data-expanded="false"] {
