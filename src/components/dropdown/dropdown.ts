@@ -2,21 +2,30 @@ import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 export interface IDropdownProps {
-  label: string;
 }
 
-@customElement('wc-dropdown')
+@customElement("wc-dropdown")
 export class Dropdown extends LitElement implements IDropdownProps {
   static styles = css`
+    button {
+      background: none;
+      border: 0;
+      color: currentColor;
+      padding: 0;
+    }
+
+    button > * {
+      pointer-events: none;
+    }
+
     .dropdown-children[data-expanded="false"] {
       display: none;
     }
   `;
 
-  @property() label: string = "";
-
   render() {
     const clickHandler = (e: MouseEvent) => {
+      console.log('click')
       const eventTarget = e.target as HTMLButtonElement;
       const parent = eventTarget.parentElement;
       const container = parent?.querySelector(".dropdown-children");
@@ -32,11 +41,13 @@ export class Dropdown extends LitElement implements IDropdownProps {
 
     return html`
       <div class="dropdown">
-        <button @click=${clickHandler}>${this.label}</button>
-        <div class="dropdown-children" data-expanded="false">test</div>
+        <button @click=${clickHandler}>
+          <slot name="button">Dropdown</slot>
+        </button>
+        <div class="dropdown-children" data-expanded="false">
+          <slot name="contents"></slot>
+        </div>
       </div>
     `;
   }
 }
-
-customElements.define("wc-dropdown", Dropdown);
