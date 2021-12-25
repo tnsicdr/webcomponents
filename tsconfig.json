@@ -14,7 +14,8 @@
       "moduleResolution": "Node",
       "resolveJsonModule": true,
       "isolatedModules": true,
-      "noEmit": true
+      "noEmit": true,
+      "useDefineForClassFields": false
     },
     "include": ["src/**/*"],
     "exclude": ["node_Modules", "dist"]

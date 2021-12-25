@@ -1,8 +1,7 @@
 import { LitElement, html, css } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 
-export interface IDropdownProps {
-}
+export interface IDropdownProps {}
 
 @customElement("wc-dropdown")
 export class Dropdown extends LitElement implements IDropdownProps {
@@ -18,33 +17,65 @@ export class Dropdown extends LitElement implements IDropdownProps {
       pointer-events: none;
     }
 
-    .dropdown-children[data-expanded="false"] {
+    .wc-dropdown-children[data-expanded="false"] {
       display: none;
     }
   `;
 
-  render() {
-    const clickHandler = (e: MouseEvent) => {
-      console.log('click')
-      const eventTarget = e.target as HTMLButtonElement;
-      const parent = eventTarget.parentElement;
-      const container = parent?.querySelector(".dropdown-children");
+  @state()
+  private dropdownState: boolean = false;
 
-      if (container instanceof HTMLElement) {
-        if (container.dataset.expanded === "false") {
-          container.dataset.expanded = "true";
-        } else {
-          container.dataset.expanded = "false";
-        }
+  private _boundOutsideClickHandler: (e: MouseEvent) => void;
+
+  constructor() {
+    super();
+    this.dropdownState = false;
+    this._boundOutsideClickHandler = this._handleOutsideClick.bind(this);
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    document.addEventListener("click", this._boundOutsideClickHandler);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    document.removeEventListener("click", this._boundOutsideClickHandler);
+  }
+
+  private _handleOutsideClick(e: MouseEvent): void {
+    if (!this.dropdownState) {
+      return;
+    }
+
+    const children = Array.from(this.childNodes).concat([this]);
+
+    if (e.target instanceof Element) {
+      if (!children.includes(e.target)) {
+        console.log(e.target)
+        console.log('not contained in')
+        console.log(children)
+        this.dropdownState = false;
+        this.requestUpdate();
       }
-    };
+    }    
+  }
 
+  private _handleDropdownClick(e: MouseEvent): void {
+    this.dropdownState = !this.dropdownState;
+    this.requestUpdate();
+  }
+
+  render() {
     return html`
-      <div class="dropdown">
-        <button @click=${clickHandler}>
-          <slot name="button">Dropdown</slot>
+      <div class="wc-dropdown">
+        <button @click=${this._handleDropdownClick}>
+          <slot name="button"></slot>
         </button>
-        <div class="dropdown-children" data-expanded="false">
+        <div
+          class="wc-dropdown-children"
+          data-expanded="${this.dropdownState.toString()}"
+        >
           <slot name="contents"></slot>
         </div>
       </div>
